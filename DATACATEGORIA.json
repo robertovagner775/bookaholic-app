@@ -1,0 +1,22 @@
+[
+
+  {
+    "id" : 1,
+    "source" : "https://www.prateleiradecima.com/wp-content/uploads/2022/10/livros-para-ler-no-haloween.webp",
+    "category" : "terror",
+    "decription" : "Os Livro mais aterrorizantes. "
+  },
+  {
+    "id" : 2,
+    "source" : "https://blog-leiturinha-novo.s3.us-east-1.amazonaws.com/production/uploads/2018/09/Curadoria-da-Leiturinha-1-770x513.jpg",
+     "category" : "diversos",
+     "decription" : "livros dos mais diversos"
+  },
+  {
+    "id" : 3,
+    "source" : "https://podpop.com.br/PodPOP/wp-content/uploads/2021/12/Banner-livros-Podpop.jpg",
+     "category" : "ficção",
+     "decription" : "Os mais Ficticios e fantasiosos"
+  }
+
+]
