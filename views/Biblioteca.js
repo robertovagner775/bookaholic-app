@@ -1,5 +1,6 @@
 import { Text, StyleSheet, View, Image,ScrollView, TouchableOpacity } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+
 import { ProgressBar } from 'react-native-elements';
 import DATA from './../data.json';
 import {useEffect, useState} from 'react';
@@ -10,13 +11,15 @@ import CardDesc from './../components/CardDesc';
 export default function Biblioteca({navigation, route}){
 
   const [usuario, setUsuario] = useState(null);
-  const [listaLivrosBiblioteca, setLivrosBiblioteca] = useState({});
+  const [livrosBiblioteca, setLivrosBiblioteca] = useState([]);
+  const [dadosLeitura, setDadosLeitura] = useState({});
 
 
 
 useEffect(() => {
   const getUsuario = async () => {
     const usuarioString = await SecureStore.getItemAsync("usuario");
+    console.log("valor retornado: " + usuarioString)
     if (usuarioString) {
       const usuario = JSON.parse(usuarioString);
       setUsuario(usuario);
@@ -26,27 +29,30 @@ useEffect(() => {
     }
   }
   getUsuario()
-}, [route.params])   
+}, [route.params])  
+
+
+
 
 useEffect(() => {
- 
-    console.log(usuario)
-    const getBibliotecaUsuario =  async () => { 
-    const  response = await Api.get("/biblioteca/listar-livros-usuarios", {
-        params : {
-          id: usuario.idUsuario,
-        },
-        headers : {
-          Authorization: "Bearer "+ usuario.token,
-        },
+  if (usuario) {
+    const getBibliotecaUsuario = async () => {
+      try {
+        const token_id = usuario.token_id;
+        const response = await Api.get("/biblioteca/listar-livros-usuarios", {
+          params: { id: usuario.idusuario },
+          headers: { Authorization: `Bearer ${token_id}` },
+        });
+        console.log(response.data);
+        setLivrosBiblioteca(response.data);
+      } catch (error) {
+        console.error("Erro ao obter biblioteca:", error);
+      }
+    };
 
-      });
-
-      setLivrosBiblioteca(response.data)
-    }
-    getBibliotecaUsuario()
- 
-  }, [usuario]);
+    getBibliotecaUsuario();
+  }
+}, [usuario]);
 
 
   return (
@@ -69,9 +75,9 @@ useEffect(() => {
                 
             </View>
             <View style={styles.containerDescLeitor}>
-              <Text style={styles.infoLeitor}>Roberto Vagner</Text>
+              <Text style={styles.infoLeitor}>{usuario.username}</Text>
               <Text style={styles.infoAddLeitor}>status personalizado</Text>
-              <TouchableOpacity style={styles.butaoPersonalizado}>
+              <TouchableOpacity style={styles.butaoPersonalizado} onPress={() => navigation.navigate("Login")}>
                   <Text style={{
                     color: "#F01624",
                   }}>Dados Leitura</Text>
@@ -79,10 +85,7 @@ useEffect(() => {
             </View>
         </View>
 
-        <View>
-          <Text style={styles.titulo}>Leituras em Andamento</Text>
-          <ListaHorizontal dataSet={DATA} />
-        </View>
+        
      
       
       <ScrollView style={styles.containerScroll} contentContainerStyle={styles.contentContainer}>
@@ -91,12 +94,17 @@ useEffect(() => {
               marginLeft: 16,
            
           }}>Livros na Biblioteca</Text>
-        {DATA.map((item, index) => (
+        {livrosBiblioteca.map((item, index) => (
+        
           <View key={index} style={styles.cardContainer}>
             <CardDesc itemSet={item} />
  
           </View>
-        ))} 
+        )
+        
+        )
+        
+        } 
       </ScrollView>
         </View>
           )}
