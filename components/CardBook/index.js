@@ -28,10 +28,10 @@ import StarRating from 'react-native-star-rating-widget';
       <StarRating
         rating={rating}
         onChange={() => {}} 
-        starSize={15} // Tamanho das estrelas
-        color={rating > 0 ? 'red' : '#cccccc'} // Cor das estrelas (vermelho ao avaliar, cinza quando não avaliadas)
-        starStyle={styles.starStyle} // Estilo das estrelas
-        containerStyle={styles.starContainer} // Estilo do container das estrelas
+        starSize={15} 
+        color={rating > 0 ? 'red' : '#cccccc'} 
+        starStyle={styles.starStyle} 
+        containerStyle={styles.starContainer} 
       />
 
       <Text>( {qtd } )</Text>

@@ -1,7 +1,7 @@
 import { Text, StyleSheet,Modal, View, Image, TouchableOpacity, Button } from 'react-native';
 import {useState} from 'react';
+import * as SecureStore from 'expo-secure-store';
 import { AntDesign } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Input from './../components/Input';
 import Api from '../components/Api';

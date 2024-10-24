@@ -1,11 +1,6 @@
 import { Text, StyleSheet,Modal,ScrollView, View, Image} from 'react-native';
-
-
 import DATACATEGORIA from './../DATACATEGORIA.json';
-
-
 import React, {useEffect, useState} from 'react';
-
 import ListaHorizontal from './../components/listaHorizontal';
 import Carousel from './../components/Carousel';
 import Api from './../components/Api';
