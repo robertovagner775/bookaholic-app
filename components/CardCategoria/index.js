@@ -26,15 +26,12 @@ const CardCategoria = ({item}) => {
 const styles = StyleSheet.create({
 
   container : {
-     width: 400,
-     height: 200,
-     margin: 16,
-     borderRadius: 16
+    width: '100%'
   },
   imgCategoria : {
     width: '100%',
     height: '100%',
-      borderRadius: 10
+     
   }
 
 

@@ -8,9 +8,16 @@ import StarRating from 'react-native-star-rating-widget';
 import * as Progress from 'react-native-progress';
 import { useNavigation } from '@react-navigation/native';
 
- const CardAnotacao = ({anotacao}) => {
+ const CardAnotacao = ({anotacao, removeAnotacao, index, goToPosition}) => {
+    const removerAnotacaoArray = () => {
+
+        deleteAnnotation(anotacao.id);
+        removeAnotacao(anotacao)
+    }
+
+
      return(
-      <TouchableOpacity style={styles.container} >
+      <TouchableOpacity style={styles.container} onPress={() => goToPosition(anotacao.cfi)}>
         <View style={{
             flex: 1
         }}>
@@ -22,7 +29,7 @@ import { useNavigation } from '@react-navigation/native';
                 <Text style={styles.descricaoAnotacao}>{anotacao.anotacao}</Text>
             </View>
         </View>
-        <TouchableOpacity style={styles.CtBtnExcluir} onPress={() => deleteAnnotation(anotacao.id)}>
+        <TouchableOpacity style={styles.CtBtnExcluir} onPress={() => removerAnotacaoArray()}>
                   <Fontisto name="trash" size={24} color="black" />
         </TouchableOpacity>
       </TouchableOpacity>

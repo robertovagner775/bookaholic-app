@@ -1,9 +1,11 @@
 import { Text, StyleSheet,Modal, View, Image, TouchableOpacity, Button } from 'react-native';
 import {useEffect, useState} from 'react';
-
+import { useNavigation } from '@react-navigation/native';
 import Api from '../Api';
 import StarRating from 'react-native-star-rating-widget';
  const CardBook = ({itemSet}) => {
+
+      const navigation = useNavigation();
 
      const [rating, setRating] = useState(0.0);
      const [qtd, setQtd] = useState(0);
@@ -13,13 +15,16 @@ import StarRating from 'react-native-star-rating-widget';
         const  {data} = await Api.get("/livros/viewAvaliacao?id=" + itemSet.id);
         setRating(data.score)
         setQtd(data.quantidade)
+        console.log("item livro")
+        console.log(itemSet)
+        console.log("fim")
     
       }
       getRating()
     }, [itemSet]);
 
      return(
-      <View  style={styles.imgContainer}>
+      <TouchableOpacity  style={styles.imgContainer} onPress={() => navigation.navigate("Descricao", {itemSet, rating})}>
    
         <Image style={styles.imgBook} source={{uri: itemSet.path_imagem}} />
         <Text style={styles.tituloLivro}>{itemSet.titulo}</Text>
@@ -37,7 +42,7 @@ import StarRating from 'react-native-star-rating-widget';
       <Text>( {qtd } )</Text>
     </View>
         
-      </View>
+      </TouchableOpacity>
      )
 };
 

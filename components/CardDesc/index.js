@@ -5,9 +5,10 @@ import { createTable, saveProgress, loadProgress } from './../../database/databa
 import * as SecureStore from 'expo-secure-store';
 import StarRating from 'react-native-star-rating-widget';
 import * as Progress from 'react-native-progress';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
- const CardDesc = ({itemSet}) => {
+ const CardDesc = ({itemSet, setModal}) => {
 
     const navigation = useNavigation();
     const [rating, setRating] = useState(0);
@@ -26,10 +27,6 @@ import { useNavigation } from '@react-navigation/native';
 
         if(usuarioString) {
             let obj = JSON.parse(usuarioString)
-            console.log('teste de usuario: '+ obj.idusuario)
-            const savedLocation = await loadProgress(obj.idusuario , itemSet.id);
-            setProgresso(savedLocation.porcentagem)
-            console.log(savedLocation.porcentagem)
             setDadosLeituraUsuario(
               {
             idusuario: obj.idusuario,
@@ -37,9 +34,24 @@ import { useNavigation } from '@react-navigation/native';
             })
          }
       }
-      console.log("teste " +itemSet.pathImagem)
       setarDados()
     }, [itemSet])
+
+    useEffect(() =>  {
+        
+      const setarDados = async ()  => {
+        const usuarioString = await SecureStore.getItemAsync("usuario");
+
+        if(usuarioString) {
+            let obj = JSON.parse(usuarioString)
+            const savedLocation = await loadProgress(obj.idusuario , itemSet.id);
+            setProgresso(savedLocation.porcentagem)
+         }
+      }
+
+      setarDados()
+    }, [dadosLeituraUsuario])
+
 
   
 
@@ -51,7 +63,9 @@ import { useNavigation } from '@react-navigation/native';
         <View style={{
             justifyContent: "space-around"
         }}>
-            <View>
+            <View style={{
+                width: "80%",
+            }}>
                 <Text style={{
                   fontSize: 18,
                   fontWeight: "bold"
@@ -63,7 +77,12 @@ import { useNavigation } from '@react-navigation/native';
             </View>
             <View>
             <Progress.Bar progress={progresso} width={200} height={12} color="red" fill="#0000000" />
-
+            <View 
+            style={{
+              flexDirection: "row",
+              marginLeft: 15,
+              alignItems: "space-between"
+            }}>
               <StarRating
                   rating={rating}
                   onChange={() => {}} 
@@ -72,6 +91,14 @@ import { useNavigation } from '@react-navigation/native';
                   starStyle={styles.starStyle} // Estilo das estrelas
                   containerStyle={styles.starContainer} // Estilo do container das estrelas
                 />
+
+
+          <TouchableOpacity onPress={setModal} style={{
+     
+          }}>
+               <Ionicons name="options" size={30} color="black" />
+          </TouchableOpacity>
+          </View>
             </View>
         </View>
 

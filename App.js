@@ -19,11 +19,15 @@ import Registrar from './views/Registrar';
 import Home from './views/Home';
 import Biblioteca from './views/Biblioteca';
 
+import GraficosDeLeitura from './views/GraficosDeLeitura';
+import Descricao from './views/Descricao';
 import LeitorEpub from './views/LeitorEpub';
 
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import Pesquisa from './views/Search';
+import Search from './views/Search';
 
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -45,7 +49,7 @@ const TabNavigation = () => {
         component={Home}
         options={{
           headerShown: false,
-          tabBarLabel: '', 
+          tabBarLabel: 'Home', 
           tabBarIcon: ({ color, focused }) => {
             if(focused) {
               return  <MaterialCommunityIcons name="home" color={color} size={26}  />
@@ -59,7 +63,7 @@ const TabNavigation = () => {
         component={Biblioteca}
         options={{
           headerShown: false,
-          tabBarLabel: '', 
+          tabBarLabel: 'Biblioteca', 
           tabBarIcon: ({ color, focused }) => {
             if(focused) {
               return  <MaterialCommunityIcons name="book-open-page-variant" color={color} size={26}  />
@@ -73,7 +77,19 @@ const TabNavigation = () => {
         }}
       />
 
-    
+<Tab.Screen
+        name="Search"
+        component={Search}
+        options={{
+          headerShown: false,
+          tabBarLabel: 'Pesquisa', 
+          tabBarIcon: ({ color, focused }) => {
+         
+            return <MaterialIcons name="search" size={26} color={color} />
+          },
+        }}
+      />
+
     </Tab.Navigator>
   );
 };
@@ -112,9 +128,23 @@ const App = () => {
           }}
         />
 
+        
+<Stack.Screen
+          name="Descricao"
+          component={Descricao}
+          options={{ headerShown: false }}
+        />
+
         <Stack.Screen
           name="Leitor"
           component={LeitorEpub}
+          options={{ headerShown: false }}
+        />
+
+
+        <Stack.Screen
+          name="Grafico"
+          component={GraficosDeLeitura}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

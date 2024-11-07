@@ -1,5 +1,5 @@
 import {SafeAreaView,StyleSheet, ScrollView, TouchableOpacity, View, Modal ,Text,TextInput, Button, Picker} from 'react-native';
-import { createTable, saveProgress, loadProgress, createAnnotation, loadAnotations } from '../database/database'; // Ajuste o caminho conforme necessário
+import { createTable, saveProgress, loadProgress, createAnnotation, loadAnotations, verificaFinalizado, atualizaFinalizado } from '../database/database'; // Ajuste o caminho conforme necessário
  // Ajuste o caminho conforme necessário
  import { useFocusEffect } from '@react-navigation/native';
  import Fontisto from '@expo/vector-icons/Fontisto';
@@ -16,6 +16,7 @@ const  EpubReader = ({dadosLeitura, navigation}) => {
   const [description, setDescription] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [anottationVisible, setAnottationVisible] = useState(false);
+  const [avisoLeitura, setAvisoLeitura] = useState(false);
 
  
    const {goPrevious, goNext, goToLocation, isLoading, readerRef, currentLocation} = useReader({
@@ -28,8 +29,15 @@ const  EpubReader = ({dadosLeitura, navigation}) => {
   const [location, setLocation] = useState(null);
   const [lastLocation, setLastLocation] = useState(null);
   
-      
+  const removeItemArray = (anotacao) => {
+    setAnnotations(annotations.filter(item => item !== anotacao));  
+}
 
+const goToLocationBook = (cfi) => {
+  goToLocation(cfi)
+  setAnottationVisible(false)
+}
+ 
   useEffect(()  => {
     fetchProgress()
   }, []);
@@ -54,7 +62,7 @@ const  EpubReader = ({dadosLeitura, navigation}) => {
     const pageNumber = currentLocation.start.displayed.page; 
     const cfi = currentLocation.start.cfi;
 
-    console.log(currentLocation)
+
 
 
     createAnnotation(dadosLeitura.idusuario, dadosLeitura.livro.id, description , cfi, pageNumber)
@@ -64,10 +72,29 @@ const  EpubReader = ({dadosLeitura, navigation}) => {
 
   };
 
+
+
+ const marcarFinalizacao = async () => {
+    atualizaFinalizado(dadosLeitura.idusuario, dadosLeitura.livro.id);
+ }
   
  
- 
+ //verifica se o livro foi finalizado
+useEffect(() => {
+  const verificaFinalizacaoLivro = async () => {
+    if(currentLocation && currentLocation.atEnd) {
+    if(currentLocation.end.percentage == 1) {
+      const result = await verificaFinalizado(dadosLeitura.idusuario , dadosLeitura.livro.id)
 
+      if(result) {
+        setAvisoLeitura(true) 
+      } 
+    }
+    }
+
+}
+verificaFinalizacaoLivro();
+}, [currentLocation && currentLocation.end ]);
 
 
 
@@ -83,15 +110,22 @@ const  EpubReader = ({dadosLeitura, navigation}) => {
        
 
       <Header dadosLeitura={dadosLeitura} current={currentLocation} onAddAnnotation={() => setModalVisible(true)} onViewAnnotation={() => setAnottationVisible(true)}/>
-      
-        
+
            <Reader
               reader={readerRef}
               src={dadosLeitura.livro.pathEpub}
+            
               initialLocation={lastLocation}
+           
               fileSystem={useFileSystem}
               defaultTheme={Themes.DARK}
+        
             />
+
+   
+
+              
+
 
 <Modal
           animationType="fade"
@@ -153,7 +187,7 @@ const  EpubReader = ({dadosLeitura, navigation}) => {
                       {annotations.map((item, index) => (
               
               <View key={index} style={styles.cardContainer}>
-                <CardAnotacao anotacao={item} />
+                <CardAnotacao anotacao={item} removeAnotacao={removeItemArray} index={index} goToPosition={goToLocationBook} />
          
               </View>
             )
@@ -164,6 +198,65 @@ const  EpubReader = ({dadosLeitura, navigation}) => {
 
 
           </ScrollView>
+        </Modal>
+
+
+        <Modal
+        animationType="fade"
+        transparent={true}
+        visible={avisoLeitura}
+        onRequestClose={() =>  setAvisoLeitura(false)}
+        >
+            <View style={{
+              padding: 36,
+              backgroundColor: "#ffff",
+            }}>
+                  <TouchableOpacity style={{
+            position: 'absolute',
+            top: 15,
+            left: 15
+          }} onPress={() => setAvisoLeitura(false)}>
+                 <AntDesign name="close" size={24} color="black" />
+          </TouchableOpacity>
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
+              >
+                <Text>
+                    Pararabens voce terminou o seu livro!!
+                </Text>
+                <Text>
+                  Deseja marcar que finalizou?
+                </Text>
+              </View>
+              <View style={{
+                flexDirection: 'row'
+              }}>
+                      <TouchableOpacity style={{
+                    backgroundColor: "#fff",
+                    borderColor: "red",
+                    border: 1,
+                    padding: 12
+                }}>
+                        <Text style={{
+                          color: "red"
+                        }}>Não <AntDesign name="close" size={24} color="red" /></Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => marcarFinalizacao()} style={{
+                    backgroundColor: "#fff",
+                    borderColor: "green",
+                    border: 1,
+                    padding: 12
+                }}>
+                        <Text style={{
+                          color: "green"
+                        }}>Sim <AntDesign name="check" size={24} color="green" /> </Text>
+                </TouchableOpacity>
+          
+              </View>
+            </View>
         </Modal>
 
     

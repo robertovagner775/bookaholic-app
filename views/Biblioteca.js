@@ -1,4 +1,4 @@
-import { Text, StyleSheet, View, Image,ScrollView, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, View, Image,ScrollView, TouchableOpacity, Animated, Dimensions} from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 import { ProgressBar } from 'react-native-elements';
@@ -6,14 +6,18 @@ import DATA from './../data.json';
 import {useEffect, useState} from 'react';
 import Api from '../components/Api';
 import ListaHorizontal from './../components/listaHorizontal';
+import InputSearch from './../components/InputSearch';
 import CardDesc from './../components/CardDesc';
+import {SimpleLineIcons, AntDesign} from '@expo/vector-icons';
+import { Modal } from 'react-native-paper';
+
 
 export default function Biblioteca({navigation, route}){
 
   const [usuario, setUsuario] = useState(null);
   const [livrosBiblioteca, setLivrosBiblioteca] = useState([]);
   const [dadosLeitura, setDadosLeitura] = useState({});
-
+  const [modalDescricao, setModalDescricao] = useState(false);
 
 
 useEffect(() => {
@@ -32,7 +36,10 @@ useEffect(() => {
 }, [route.params])  
 
 
-
+const logout = async () => {
+  setUsuario(null)
+  await SecureStore.deleteItemAsync("usuario")
+}
 
 useEffect(() => {
   if (usuario) {
@@ -59,16 +66,28 @@ useEffect(() => {
      <ScrollView style={styles.container}>
 
           { usuario && (
-            <View>
+
+
+
+
+        <View style={{
+          paddingTop: 60,
+        }}>
           <View style={{
             backgroundColor: "#e64529",
             width: '100%',
-            height: '10%',
-
+            height: 415,
+        
             position: 'absolute',
             borderRadius: 16,
             flex: 1
           }}></View>
+        <View style={styles.containerTop}> 
+        <Image style={styles.logo} source={require('../assets/imgs/bookaholic-white.png')} />
+     
+        <SimpleLineIcons name="menu" size={30} color="white" />
+        </View>
+
 
           <View style={styles.containerLeitor}>
             <View style={styles.containerimgLeitor}>
@@ -77,18 +96,29 @@ useEffect(() => {
             <View style={styles.containerDescLeitor}>
               <Text style={styles.infoLeitor}>{usuario.username}</Text>
               <Text style={styles.infoAddLeitor}>status personalizado</Text>
-              <TouchableOpacity style={styles.butaoPersonalizado} onPress={() => navigation.navigate("Login")}>
-                  <Text style={{
-                    color: "#F01624",
-                  }}>Dados Leitura</Text>
-              </TouchableOpacity>
+              <View style={{
+                 flexDirection: 'row'
+              }}>
+                <TouchableOpacity style={styles.butaoPersonalizado} onPress={() => navigation.navigate("Grafico")}>
+                    <Text style={{
+                      color: "#F01624",
+                    }}>Dados Leitura</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "gray",
+                    padding: 16,
+                    marginLeft: 8,
+                    borderRadius: 50
+                }} onPress={() => logout()}>
+                    <SimpleLineIcons name="logout" size={24} color="black" />
+                </TouchableOpacity>
+              </View>
             </View>
         </View>
 
-        <View>
-          <Text style={styles.titulo}>Leituras em Andamento</Text>
-          <ListaHorizontal dataSet={DATA} />
-        </View>
+       
      
       
       <ScrollView style={styles.containerScroll} contentContainerStyle={styles.contentContainer}>
@@ -100,7 +130,7 @@ useEffect(() => {
         {livrosBiblioteca.map((item, index) => (
         
           <View key={index} style={styles.cardContainer}>
-            <CardDesc itemSet={item} />
+            <CardDesc itemSet={item} setModal={() => setModalDescricao(true)} />
  
           </View>
         )
@@ -146,12 +176,67 @@ useEffect(() => {
                 </TouchableOpacity>
           </View>
       )}
+
+
+
+      <Modal
+    
+        animationType="fade"
+        transparent={true}
+        visible={modalDescricao}
+        onRequestClose={() =>  setModalDescricao(false)}
+        >
+
+          <View style={styles.content}>
+
+          <TouchableOpacity style={{
+            position: 'absolute',
+            top: 15,
+            left: 15
+          }} onPress={() => setModalDescricao(false)}>
+                 <AntDesign name="close" size={24} color="black" />
+          </TouchableOpacity>
+            <Image
+              source={{ uri: 'https://sebodamata.com.br/wp-content/uploads/2021/05/aartedaguerra_suntzu.jpg' }}
+              style={styles.bookCover}
+            />
+            <Text style={styles.bookTitle}>A Arte da Guerra</Text>
+            <Text style={styles.bookDescription}>
+              Um clássico sobre estratégia e tática militar, oferecendo ensinamentos aplicáveis a diversas áreas além da guerra, como negócios e gestão. Com foco em planejamento, liderança e antecipação.
+            </Text>
+
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText}>Iniciar Leitura</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText}>Retomar Leitura</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText}>Compartilhar Leitura</Text>
+            </TouchableOpacity>
+          </View>
+   
+      </Modal>
      </ScrollView>
    
     
   );
 }
 const styles = StyleSheet.create({
+
+  containerTop: {
+    flexDirection: "row",
+    zIndex: 1,
+    alignItems: "center",
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+  },
+  logo: {
+    width: 75,
+    height: 75, 
+  },
   containerScroll: {
     flex: 1,
     marginLeft: 10,
@@ -162,7 +247,7 @@ const styles = StyleSheet.create({
    color: "#fff"
  },
  containerLeitor : {
-    marginTop: 85,
+    marginTop: 40,
     marginBottom: 24,
     flexDirection: "row",
     justifyContent: "center",
@@ -202,6 +287,44 @@ const styles = StyleSheet.create({
    padding: 16,
     marginTop: 15,
    backgroundColor: "#F01624",
- }
+ },
+ content: {
+  width: '100%',
+  height: '100%',
+  backgroundColor: '#fff',
+  alignItems: 'center',
 
+},
+bookCover: {
+  width: 200,
+  height: 300,
+  borderRadius: 10,
+  marginBottom: 20,
+},
+bookTitle: {
+  fontSize: 24,
+  fontWeight: 'bold',
+  textAlign: 'center',
+  marginBottom: 10,
+},
+bookDescription: {
+  fontSize: 16,
+  textAlign: 'center',
+  color: '#666',
+  marginBottom: 30,
+},
+button: {
+  backgroundColor: '#A4161A',
+  paddingVertical: 15,
+  paddingHorizontal: 40,
+  borderRadius: 30,
+  marginBottom: 15,
+  width: '80%',
+  alignItems: 'center',
+},
+buttonText: {
+  color: '#FFF',
+  fontSize: 16,
+  fontWeight: 'bold',
+},
 });
