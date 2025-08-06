@@ -15,8 +15,11 @@ export function Header({dadosLeitura, current, onAddAnnotation, onViewAnnotation
   const { changeTheme, theme } = useReader();
 
   const salvarProgresso = () => {
-
-    saveProgress(dadosLeitura.idusuario, dadosLeitura.livro.id , current.end.cfi, current.end.percentage)
+    if(current && current.atStart) { 
+      saveProgress(dadosLeitura.idusuario, dadosLeitura.livro.id , current.start.cfi, current.start.percentage)
+    } else {
+      saveProgress(dadosLeitura.idusuario, dadosLeitura.livro.id , current.end.cfi, current.end.percentage)
+    }
 
     navigation.goBack()
   }

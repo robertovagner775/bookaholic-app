@@ -1,14 +1,15 @@
 
 import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, Animated, Dimensions } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Text, Modal, TouchableOpacity , StyleSheet, Animated, Dimensions } from 'react-native';
+import { MaterialCommunityIcons, SimpleLineIcons } from '@expo/vector-icons';
 import CardUser from '../CardUser';
+import { useNavigation } from '@react-navigation/native';
 
 const DrawerModal = ({ isVisible, closeDrawer, usuario, dadosLeitura }) => {
   const screenWidth = Dimensions.get('window').width;
   const slideAnim = new Animated.Value(-screenWidth); 
 
-
+  const navigation = useNavigation();
 
   const openDrawer = () => {
     Animated.timing(slideAnim, {
@@ -37,28 +38,32 @@ const DrawerModal = ({ isVisible, closeDrawer, usuario, dadosLeitura }) => {
    
         {usuario && (
           <View>
-            <Text>{usuario.username}</Text> 
-            <TouchableOpacity style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>Informacoes de leitura</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-            <CardUser />
-            <TouchableOpacity style={styles.itemMenu}>
+            <CardUser usuario={usuario} />
+            <TouchableOpacity style={styles.itemMenu} onPress={() => navigation.navigate('Grafico')}>
                   <MaterialCommunityIcons name="view-dashboard" size={24} color="#F01624" />
                 <Text style={{
                   color: "#F01624",
                   
                 }}>Informacoes de leitura</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.itemMenu}>
-                  <MaterialCommunityIcons name="view-dashboard" size={24} color="#F01624" />
-                <Text style={{
-                  color: "#F01624",
-                  
-                }}>Sobre</Text>
-            </TouchableOpacity>
+          </View>
+        )}
+
+       {!usuario && (
+          <TouchableOpacity style={styles.itemMenu}  onPress={() => navigation.navigate("Login")}>
+        <SimpleLineIcons name="login" size={24} color="#F01624" />
+            <Text style={{
+              color: "#F01624",  
+              }}>Realizar o Login</Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity style={styles.itemMenu} onPress={() => navigation.navigate('Sobre')} >
+        <MaterialCommunityIcons name="television-guide" size={24} color="#F01624" />
+          <Text style={{
+            color: "#F01624",  
+            }}>Sobre</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={close} style={styles.closeButton}>
           <Text style={styles.closeButtonText}>Fechar</Text>
         </TouchableOpacity>
@@ -98,6 +103,8 @@ const styles = StyleSheet.create({
    backgroundColor: "#fff",
    borderColor: "#F01624",  
    borderWidth: 2,
+
+
   },
   closeButton: {
     backgroundColor: '#ff4444',

@@ -7,6 +7,7 @@ import {useEffect, useState} from 'react';
 import Api from '../components/Api';
 import ListaHorizontal from './../components/listaHorizontal';
 import InputSearch from './../components/InputSearch';
+import DrawerModal from './../components/DrawerModal';
 import CardDesc from './../components/CardDesc';
 import {SimpleLineIcons, AntDesign} from '@expo/vector-icons';
 import { Modal } from 'react-native-paper';
@@ -15,10 +16,19 @@ import { Modal } from 'react-native-paper';
 export default function Biblioteca({navigation, route}){
 
   const [usuario, setUsuario] = useState(null);
+  const [listMelhorLivros, setListMelhorLivros] = useState([]);
   const [livrosBiblioteca, setLivrosBiblioteca] = useState([]);
   const [dadosLeitura, setDadosLeitura] = useState({});
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [modalDescricao, setModalDescricao] = useState(false);
 
+  useEffect(() => {
+    const getLivroColunaUm =  async () => {
+      const  {data} = await Api.get("/livros/melhores-livros");
+      setListMelhorLivros(data)
+    }
+    getLivroColunaUm()
+  }, []);
 
 useEffect(() => {
   const getUsuario = async () => {
@@ -61,6 +71,9 @@ useEffect(() => {
   }
 }, [usuario]);
 
+const toggleDrawer = () => {
+  setIsDrawerVisible(!isDrawerVisible);
+};
 
   return (
      <ScrollView style={styles.container}>
@@ -73,10 +86,11 @@ useEffect(() => {
         <View style={{
           paddingTop: 60,
         }}>
+          <DrawerModal isVisible={isDrawerVisible} usuario={usuario} closeDrawer={() => setIsDrawerVisible(false)} />
           <View style={{
             backgroundColor: "#e64529",
             width: '100%',
-            height: 415,
+            height: 300,
         
             position: 'absolute',
             borderRadius: 16,
@@ -84,39 +98,18 @@ useEffect(() => {
           }}></View>
         <View style={styles.containerTop}> 
         <Image style={styles.logo} source={require('../assets/imgs/bookaholic-white.png')} />
-     
-        <SimpleLineIcons name="menu" size={30} color="white" />
+          
+          <TouchableOpacity onPress={toggleDrawer} >
+                <SimpleLineIcons name="menu" size={30} color="white" />
+        </TouchableOpacity>
         </View>
 
 
-          <View style={styles.containerLeitor}>
-            <View style={styles.containerimgLeitor}>
-                
-            </View>
-            <View style={styles.containerDescLeitor}>
-              <Text style={styles.infoLeitor}>{usuario.username}</Text>
-              <Text style={styles.infoAddLeitor}>status personalizado</Text>
-              <View style={{
-                 flexDirection: 'row'
-              }}>
-                <TouchableOpacity style={styles.butaoPersonalizado} onPress={() => navigation.navigate("Grafico")}>
-                    <Text style={{
-                      color: "#F01624",
-                    }}>Dados Leitura</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "gray",
-                    padding: 16,
-                    marginLeft: 8,
-                    borderRadius: 50
-                }} onPress={() => logout()}>
-                    <SimpleLineIcons name="logout" size={24} color="black" />
-                </TouchableOpacity>
-              </View>
-            </View>
-        </View>
+      <View>
+          <Text style={styles.titulo}>Recomendacao de Leituras</Text>
+          <ListaHorizontal dataSet={listMelhorLivros} />
+          
+      </View>
 
        
      

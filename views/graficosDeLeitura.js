@@ -78,23 +78,10 @@ export default function GraficosDeLeitura({ navigation, route }) {
 
     fetchAndSetChartData();
   }, []);
-   const data = {
-    labels: ["January", "February", "March", "April", "May", "June"],
-    datasets: [
-      {
-        data: [20, 45, 28, 0, 0, 0]
-      }
-    ]
-  };
+
   const [dataSet, setData] = useState([]);
   const [dataLine, setDataLine] = useState({});
 
-  const pieData = [
-    { name: 'Ficção', population: 45, color: '#ff6384' },
-    { name: 'Não Ficção', population: 30, color: '#36a2eb' },
-    { name: 'Fantasia', population: 15, color: '#ffce56' },
-    { name: 'Mistério', population: 10, color: '#4bc0c0' },
-  ];
 
 
   useEffect(() =>  {
@@ -114,6 +101,7 @@ export default function GraficosDeLeitura({ navigation, route }) {
       const dados = await dadosGrafico()
   
       setData(dados)
+      console.log(dados)
     }
     getDados()
   }, [])
@@ -126,7 +114,7 @@ export default function GraficosDeLeitura({ navigation, route }) {
       <View style={{
         marginTop: 36
       }}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
            <FontAwesome5 name="arrow-left" size={24} color="black" /> 
         </TouchableOpacity>
       </View>
@@ -144,8 +132,9 @@ export default function GraficosDeLeitura({ navigation, route }) {
           color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
           labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
         }}
+        style={styles.chart}
         accessor="population"
-        backgroundColor="transparent"
+        backgroundColor="#fff"
         paddingLeft="15"
       />
       
@@ -175,15 +164,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#e64529',
   },
   titulo: {
     fontSize: 20,
-
+    color: '#fff',
     textAlign: 'center',
     marginVertical: 20,
   },
   subTitulo: {
+    color: '#fff',
     fontSize: 18,
     marginLeft: 4,
     marginVertical: 10,

@@ -1,4 +1,4 @@
-import { Text, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
+ import { Text, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import {useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Input from './../components/Input';

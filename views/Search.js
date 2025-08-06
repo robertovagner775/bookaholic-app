@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
 import InputSearch from '../components/InputSearch';
+import DrawerModal from '../components/DrawerModal';
 import CardBook from '../components/CardBook';
 import Api from '../components/Api';
-
+import { useFocusEffect } from '@react-navigation/native';
 import { SimpleLineIcons } from '@expo/vector-icons';
 
 const CATEGORIES = [
@@ -23,11 +24,12 @@ const trendingBooks = [
 
 export default function Search({ navigation, route }) {
   const [searchTerm, setSearchTerm] = useState(route.params?.value || '');
+  const [usuario, setUsuario] = useState(null);
 
 
   const [filterGoodBooks, setFilteredGoodBooks] = useState(listMelhorLivros);
   const [filterBooks, setFilteredBooks] = useState(listLivro);
-
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [listLivro, setListLivro] = useState([]);
       const [listMelhorLivros, setListMelhorLivros] = useState([]);
 
@@ -54,7 +56,9 @@ export default function Search({ navigation, route }) {
     }
   }, [route.params]);
 
-  
+  const toggleDrawer = () => {
+    setIsDrawerVisible(!isDrawerVisible);
+  };
   
   useEffect(() => {
     const books = listLivro.filter(book =>
@@ -71,12 +75,37 @@ export default function Search({ navigation, route }) {
 
   }, [searchTerm]);
 
+  useFocusEffect(
+    useCallback(() => {
+    
+      const getUsuario = async () => {
+        const usuarioString = await SecureStore.getItemAsync("usuario");
+        console.log("valor retornado: " + usuarioString)
+        if (usuarioString) {
+          const usuario = JSON.parse(usuarioString);
+          setUsuario(usuario);
+          console.log('Dados do usuário recuperados:', usuario);
+        } else {
+          setUsuario(null)
+          console.log('Nenhum dado encontrado para a chave "usuario".');
+        }
+      }
+      getUsuario()
+
+    }, [])
+  );
+
   return (
     <View style={styles.container}>
+       <DrawerModal isVisible={isDrawerVisible} usuario={usuario} closeDrawer={() => setIsDrawerVisible(false)} />
+
+
       <View style={styles.containerTop}>
         <Image style={styles.logo} source={require('../assets/imgs/bookaholic.png')} />
         <InputSearch placeholder="Pesquise um Livro" onChangeText={setSearchTerm} value={searchTerm} />
-        <SimpleLineIcons name="menu" size={30} color="black" onPress={() => navigation.openDrawer()} />
+        <TouchableOpacity onPress={toggleDrawer}>
+           <SimpleLineIcons name="menu" size={30} color="black" />
+        </TouchableOpacity>   
       </View>
 
       <ScrollView>

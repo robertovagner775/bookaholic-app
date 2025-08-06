@@ -26,7 +26,7 @@ import LeitorEpub from './views/LeitorEpub';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import Pesquisa from './views/Search';
+import Sobre from './views/Sobre';
 import Search from './views/Search';
 
 const Stack = createNativeStackNavigator();
@@ -145,6 +145,12 @@ const App = () => {
         <Stack.Screen
           name="Grafico"
           component={GraficosDeLeitura}
+          options={{ headerShown: false }}
+        />
+
+<Stack.Screen
+          name="Sobre"
+          component={Sobre}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

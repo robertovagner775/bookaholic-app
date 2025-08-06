@@ -1,4 +1,4 @@
-import {SafeAreaView,StyleSheet, ScrollView, TouchableOpacity, View, Modal ,Text,TextInput, Button, Picker} from 'react-native';
+import {SafeAreaView,StyleSheet, ScrollView, TouchableOpacity, View, Modal ,Text,TextInput, Button, Picker,  KeyboardAvoidingView,  Image,  Platform} from 'react-native';
 import { createTable, saveProgress, loadProgress, createAnnotation, loadAnotations, verificaFinalizado, atualizaFinalizado } from '../database/database'; // Ajuste o caminho conforme necessário
  // Ajuste o caminho conforme necessário
  import { useFocusEffect } from '@react-navigation/native';
@@ -76,6 +76,7 @@ const goToLocationBook = (cfi) => {
 
  const marcarFinalizacao = async () => {
     atualizaFinalizado(dadosLeitura.idusuario, dadosLeitura.livro.id);
+    navigation.navigate('Biblioteca')
  }
   
  
@@ -91,7 +92,7 @@ useEffect(() => {
       } 
     }
     }
-
+    console.log(currentLocation)
 }
 verificaFinalizacaoLivro();
 }, [currentLocation && currentLocation.end ]);
@@ -100,14 +101,18 @@ verificaFinalizacaoLivro();
 
  
 
-  return (   
-        <SafeAreaView style={{
+  return (  
+    
+
+          <ScrollView style={{
           flex: 1,
           paddingTop: 50,
           backgroundColor: "#545454"
-        }}>
+        }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled">
 
-       
+
 
       <Header dadosLeitura={dadosLeitura} current={currentLocation} onAddAnnotation={() => setModalVisible(true)} onViewAnnotation={() => setAnottationVisible(true)}/>
 
@@ -207,10 +212,8 @@ verificaFinalizacaoLivro();
         visible={avisoLeitura}
         onRequestClose={() =>  setAvisoLeitura(false)}
         >
-            <View style={{
-              padding: 36,
-              backgroundColor: "#ffff",
-            }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                <View style={{ padding: 20, backgroundColor: 'white', borderRadius: 10, alignItems: 'center' }}>
                   <TouchableOpacity style={{
             position: 'absolute',
             top: 15,
@@ -224,6 +227,8 @@ verificaFinalizacaoLivro();
                   alignItems: 'center'
                 }}
               >
+                 <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/1986/1986987.png' }} style={{ width: 100, height: 100 }} />
+              
                 <Text>
                     Pararabens voce terminou o seu livro!!
                 </Text>
@@ -257,6 +262,7 @@ verificaFinalizacaoLivro();
           
               </View>
             </View>
+            </View>
         </Modal>
 
     
@@ -276,7 +282,8 @@ verificaFinalizacaoLivro();
  
 
 </View>
-</SafeAreaView>
+
+</ScrollView>
    
 
   
@@ -288,11 +295,17 @@ const LeitorEpub = ({navigation, route}) => {
 
 
   return (
-    <ReaderProvider>
-      <EpubReader dadosLeitura={route.params.dadosLeituraUsuario}/>
 
+    <ReaderProvider>
+
+
+  
+      <EpubReader dadosLeitura={route.params.dadosLeituraUsuario} navigation={navigation}/>
+
+    
       
     </ReaderProvider>
+  
   );
 }
 const styles = StyleSheet.create({

@@ -1,9 +1,21 @@
-import { StyleSheet, FlatList, Image, View, Text } from 'react-native';
+import { StyleSheet, FlatList, Image, View, Text, TouchableOpacity } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 import {FontAwesome, SimpleLineIcons} from '@expo/vector-icons';
 import { ProgressBar } from 'react-native-elements';
 import CardBook from '../CardBook';
+import { useNavigation } from '@react-navigation/native';
 
-const CardUser = () => {
+const CardUser = ({usuario}) => {
+  
+  const navigation = useNavigation();
+
+
+  const logout = async () => {
+
+    await SecureStore.deleteItemAsync("usuario");
+    navigation.navigate('Login')
+
+  }
 
   return (
     <View style={styles.container}>
@@ -25,16 +37,16 @@ const CardUser = () => {
                     <SimpleLineIcons name="logout" size={24} color="black" />
                 </TouchableOpacity>
         </View>        
-        <Text style={styles.txtnome}>Roberto Vagner</Text>
-        <Text style={styles.txtemail}>robertovagner04@gmail.com</Text>
+        <Text style={styles.txtnome}>{usuario.username}</Text>
+        <Text style={styles.txtemail}>{usuario.email}</Text>
     </View>
   );
 };
 const styles = StyleSheet.create({
     container : {
-        height: '20%',
+        height: 200,
         width: '100%',
-        padding: 16,
+       padding: 16 
  
     },
     txtnome : {

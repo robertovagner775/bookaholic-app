@@ -14,19 +14,24 @@ export default function Login({navigation}){
     const [usuario, setUsuario] = useState(null);
 
     const handlePostRequest = async ()  => {
+      try{
         const response = await Api.post('/usuario/login', {
           email: email,
           senha: senha
         });
-   
 
+        response.Re
         if(response.status == 200) {
           setUsuario(response.data)
           setUsuarioSecurity(response.data)
           let usuario =  response.data
           navigation.navigate("Biblioteca", {usuario})
-        } 
-    
+        }
+        
+      }catch(error) {
+
+        setModalVisible(true)
+      }
     };
  
 
@@ -90,9 +95,7 @@ export default function Login({navigation}){
           <TouchableOpacity  style={styles.btnAcessar} onPress={handlePostRequest}>
               <Text style={styles.btnText}>Acessar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.btnRegistrar} onPress={()=> navigation.navigate('Registrar')}>
-              <Text style={styles.btnTextDois}>Registrar</Text>
-          </TouchableOpacity>
+        
 
 
           </View>

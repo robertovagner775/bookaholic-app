@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const Api =  axios.create({
-    baseURL: "http://192.168.1.109:8080/"
+    baseURL: "https://bookaholic-api-2-production.up.railway.app/"
 })
 
 export default Api;

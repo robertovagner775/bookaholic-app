@@ -5,18 +5,25 @@ import React, { useState, useEffect } from 'react';
 
 const db = SQLite.openDatabaseSync('progressoLeitura.db');
 
-
+const resetDatabase = async () => {
+  await db.runAsync('DELETE FROM progressoLeitura')
+}
 const createTable = async () => {
+
+  /*
  await db.execAsync(
-      `CREATE TABLE IF NOT EXISTS progressoLeitura (
+      `CREATE OR ALTER TABLE IF NOT EXISTS progressoLeitura (
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
+
         idusuario INTEGER, 
         idlivro INTEGER, 
         localLivro TEXT,
-        porcentagem REAL
+        porcentagem REAL,
+        dataFinalizacao DATE
+
       )`,)
       await db.execAsync(
-        `CREATE TABLE IF NOT EXISTS anotacao (
+        `CREATE OR ALTER TABLE IF NOT EXISTS anotacao (
           id INTEGER PRIMARY KEY AUTOINCREMENT, 
           idusuario INTEGER, 
           idlivro INTEGER, 
@@ -24,6 +31,13 @@ const createTable = async () => {
           cfi TEXT,
           pagina INTEGER
         )`,)
+
+
+        */
+
+
+     await  db.runAsync("ALTER TABLE progressoLeitura DROP COLUMN dataFinalizacao;")
+     await  db.runAsync("ALTER TABLE progressoLeitura ADD COLUMN dataFinalizacao DATETIME;")
 }
 const saveProgress = async (userId, bookId, location, percentage) => {
   const result = await db.runAsync('INSERT INTO progressoLeitura (idusuario, idlivro, localLivro, porcentagem) VALUES (?, ?, ?, ?)',userId, bookId, location, percentage);
@@ -48,10 +62,10 @@ const deleteAnnotation = async (idanotacao) => {
 
 const verificaFinalizado = async (idusuario, idlivro) => {
     const result = await db.getAllAsync("SELECT * FROM progressoLeitura WHERE idlivro = ? and idusuario = ? and dataFinalizacao IS NOT NULL ", idlivro, idusuario)
-    if(result.length === 0) {
-      return true;
-    } else {
+    if(result > 0) {
       return false;
+    } else {
+      return true;
     }
 
  
@@ -65,6 +79,7 @@ const getDadosFinalizados =  async () => {
 const atualizaFinalizado = async (idusuario, idlivro) => {
   const result = await db.getFirstAsync("SELECT * FROM progressoLeitura WHERE idlivro = ? and idusuario = ? ORDER BY id DESC", idlivro, idusuario)
   const dataAtual = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  console.log(dataAtual)
   const resultRow  =  await db.runAsync('UPDATE progressoLeitura SET dataFinalizacao=? WHERE id = ?', dataAtual,  result.id)
 }
 
@@ -76,16 +91,19 @@ const dadosGrafico = async () => {
     //realiza o calculo dos status
     const dados = calculateBookStatus(resultRecord);
 
+
+
     //contabiliza os valores
     let emAndamento = 0;
     let finalizado = 0;
     let semAcesso = 0;
     dados.forEach((dado) => {
+      console.log(dado)
         if(dado.status == "Em Andamento") {
           emAndamento += 1;
         } else if (dado.status == "Finalizado") {
           finalizado += 1;
-        } else {
+        } else if (dado.status == "Sem Acesso") {
           semAcesso += 1;
         }
     })
@@ -118,7 +136,7 @@ const getLastProgressIds = async () => {
     return result
 
 }
-
+/*
 
 function calculateBookStatus(records) {
   const bookStatus = {}; // Armazena os status de cada livro
@@ -153,10 +171,58 @@ function calculateBookStatus(records) {
       bookStatus[record.idlivro].status = 'Finalizado';
     } else if (bookStatus[record.idlivro].porcentagemMaxima > 0) {
       bookStatus[record.idlivro].status = 'Em Andamento';
+    } else if (bookStatus[record.idlivro].porcentagemMaxima == 0) {
+      bookStatus[record.idlivro].status = 'Sem Acesso';
     }
 
     // Log do status do livro atualizado
 
+    // Transforma o objeto bookStatus em um array de objetos com idLivro e status
+    const resultado = Object.entries(bookStatus).map(([idlivro, { status }]) => ({
+      idlivro,
+      status
+    }));
+    
+    // Log do resultado final para depuração
+    
+    return resultado;
+    }
+  });
+*/
+function calculateBookStatus(records) {
+  const bookStatus = {}; // Armazena os status de cada livro
+
+  // Itera sobre cada registro retornado e atualiza a porcentagem máxima
+  records.forEach(record => {
+    if (!record.idlivro) {
+      return; // Ignora registros sem `idlivro`
+    }
+
+    if (!bookStatus[record.idlivro]) {
+      bookStatus[record.idlivro] = {
+        porcentagemMaxima: 0
+      };
+    }
+
+    // Atualiza a porcentagem máxima para cada livro
+    bookStatus[record.idlivro].porcentagemMaxima = Math.max(
+      bookStatus[record.idlivro].porcentagemMaxima,
+      record.porcentagem
+    );
+  });
+
+  // Define o status de cada livro após calcular a porcentagem máxima
+  Object.keys(bookStatus).forEach(idlivro => {
+    const porcentagemMaxima = bookStatus[idlivro].porcentagemMaxima;
+
+    // Define o status com base na porcentagem máxima
+    if (porcentagemMaxima === 1) {
+      bookStatus[idlivro].status = 'Finalizado';
+    } else if (porcentagemMaxima > 0) {
+      bookStatus[idlivro].status = 'Em Andamento';
+    } else {
+      bookStatus[idlivro].status = 'Sem Acesso';
+    }
   });
 
   // Transforma o objeto bookStatus em um array de objetos com idLivro e status
@@ -164,8 +230,6 @@ function calculateBookStatus(records) {
     idlivro,
     status
   }));
-
-  // Log do resultado final para depuração
 
   return resultado;
 }

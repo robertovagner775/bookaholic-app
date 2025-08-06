@@ -1,7 +1,7 @@
 import { Text, StyleSheet,Modal, View, Image, TouchableOpacity, Button } from 'react-native';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import { createTable, saveProgress, loadProgress } from './../../database/database'; // Ajuste o caminho conforme necessário
-
+import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import StarRating from 'react-native-star-rating-widget';
 import * as Progress from 'react-native-progress';
@@ -37,6 +37,8 @@ import { useNavigation } from '@react-navigation/native';
       setarDados()
     }, [itemSet])
 
+
+    /*
     useEffect(() =>  {
         
       const setarDados = async ()  => {
@@ -51,7 +53,25 @@ import { useNavigation } from '@react-navigation/native';
 
       setarDados()
     }, [dadosLeituraUsuario])
+*/
 
+    useFocusEffect(
+      useCallback(() => {
+      
+        const setarDados = async ()  => {
+          const usuarioString = await SecureStore.getItemAsync("usuario");
+  
+          if(usuarioString) {
+              let obj = JSON.parse(usuarioString)
+              const savedLocation = await loadProgress(obj.idusuario , itemSet.id);
+              setProgresso(savedLocation.porcentagem)
+           }
+        }
+        setarDados()
+
+      }, [])
+    );
+  
 
   
 
@@ -83,21 +103,10 @@ import { useNavigation } from '@react-navigation/native';
               marginLeft: 15,
               alignItems: "space-between"
             }}>
-              <StarRating
-                  rating={rating}
-                  onChange={() => {}} 
-                  starSize={30} // Tamanho das estrelas
-                  color={rating > 0 ? 'red' : '#CFCFCF'} // Cor das estrelas (vermelho ao avaliar, cinza quando não avaliadas)
-                  starStyle={styles.starStyle} // Estilo das estrelas
-                  containerStyle={styles.starContainer} // Estilo do container das estrelas
-                />
+            
 
 
-          <TouchableOpacity onPress={setModal} style={{
-     
-          }}>
-               <Ionicons name="options" size={30} color="black" />
-          </TouchableOpacity>
+       
           </View>
             </View>
         </View>
